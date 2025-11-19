@@ -3,6 +3,8 @@ Unit tests for weather module.
 """
 
 import pytest
+
+pytestmark = [pytest.mark.unit, pytest.mark.api]
 from unittest.mock import patch, Mock
 from copy import deepcopy
 import requests

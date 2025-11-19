@@ -3,6 +3,8 @@ Unit tests for CLI main function.
 """
 
 import pytest
+
+pytestmark = [pytest.mark.integration, pytest.mark.cli]
 from unittest.mock import patch, Mock
 from copy import deepcopy
 import sys

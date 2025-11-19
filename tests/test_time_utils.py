@@ -3,6 +3,8 @@ Unit tests for time_utils module.
 """
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from datetime import datetime, timezone, timedelta
 from tokyoweather.time_utils import get_jst_time, format_jst_time
 
