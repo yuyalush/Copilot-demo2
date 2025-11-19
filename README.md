@@ -79,13 +79,15 @@ export OPENWEATHER_API_KEY=your_actual_api_key_here
 
 **Method 2: Using .env file (recommended for development)**
 
-1. Create a `.env` file in the project root:
+1. Copy the example file to create your `.env` file:
 ```bash
-touch .env
+cp .env.example .env
 ```
 
-2. Add your API key to the `.env` file:
+2. Edit the `.env` file and add your actual API key:
 ```bash
+# Open .env in your editor and replace 'your_api_key_here' with your actual key
+# Or use this command:
 echo "OPENWEATHER_API_KEY=your_actual_api_key_here" > .env
 ```
 
