@@ -28,26 +28,39 @@ pip install -r requirements.txt
 
 ---
 ## Installation & Setup
-Clone the repository:
+
+### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/yuyalush/Copilot-demo2.git
 cd Copilot-demo2
 ```
-Create and activate a virtual environment (example using `venv`):
+
+### Step 2: Set Up Virtual Environment
+**Recommended: Using venv (built-in)**
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # macOS/Linux
 # On Windows:
 # .venv\Scripts\activate
 ```
-Install dependencies:
+
+**Alternative: Using Poetry**
+```bash
+poetry shell
+```
+
+### Step 3: Install Dependencies
+**Using pip (Recommended):**
 ```bash
 pip install -r requirements.txt
 ```
-(If using Poetry):
+
+**Using Poetry:**
 ```bash
 poetry install
 ```
+
+> **Note:** If `requirements.txt` is not yet present, it will be added in future commits.
 
 ---
 ## Environment Variables
@@ -57,14 +70,31 @@ The tool requires an API key for the weather provider. Set it before running the
 |----------|-------------|---------|
 | `OPENWEATHER_API_KEY` | API key for OpenWeatherMap (or chosen provider) | `export OPENWEATHER_API_KEY=your_key_here` |
 
-You may optionally use a `.env` file during development:
-```
-OPENWEATHER_API_KEY=your_key_here
-```
-Load via `python-dotenv` (the CLI/module will attempt to load `.env` if present).
+### Setting Up Environment Variables
 
-Validation:
-- If the key is missing, the CLI prints a clear error message and exits with a non-zero status.
+**Method 1: Export directly (temporary)**
+```bash
+export OPENWEATHER_API_KEY=your_actual_api_key_here
+```
+
+**Method 2: Using .env file (recommended for development)**
+
+1. Create a `.env` file in the project root:
+```bash
+touch .env
+```
+
+2. Add your API key to the `.env` file:
+```bash
+echo "OPENWEATHER_API_KEY=your_actual_api_key_here" > .env
+```
+
+3. The CLI will automatically load the `.env` file via `python-dotenv` if present.
+
+**Important Notes:**
+- Never commit `.env` files to version control (already in `.gitignore`)
+- Get your API key from [OpenWeatherMap](https://openweathermap.org/api)
+- If the key is missing, the CLI prints a clear error message and exits with a non-zero status
 
 ---
 ## Usage
@@ -125,10 +155,30 @@ Copilot-demo2/
 
 ---
 ## Testing
-Run tests with `pytest`:
+### Running Tests
+Run all tests with `pytest`:
 ```bash
 pytest -v
 ```
+
+Run tests with coverage report:
+```bash
+pytest --cov=tokyoweather --cov-report=term-missing
+```
+
+Run specific test file:
+```bash
+pytest tests/test_weather.py -v
+```
+
+Run tests matching a pattern:
+```bash
+pytest -k "test_fetch_weather" -v
+```
+
+### Test Structure
+Tests use `pytest` with mocking for external API calls to ensure reliability without actual network requests.
+
 ### Mocking External Calls
 Use `pytest` + `unittest.mock` or `responses` library to mock HTTP calls:
 ```python
@@ -146,10 +196,6 @@ def test_fetch_weather_success(mock_get):
     }
     data = fetch_weather(api_key="dummy", city="Tokyo")
     assert data.temperature == 18.2
-```
-Generate coverage (optional):
-```bash
-pytest --cov=tokyoweather --cov-report=term-missing
 ```
 
 ---
@@ -208,6 +254,41 @@ MIT License (unless the repository chooses a different one). If a `LICENSE` file
 - Python community & open source libraries
 
 ---
+## Troubleshooting
+
+### Common Issues
+
+**Issue: `ModuleNotFoundError` when running the CLI**
+- **Solution:** Ensure you've activated your virtual environment and installed dependencies:
+  ```bash
+  source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+  pip install -r requirements.txt
+  ```
+
+**Issue: API key error despite setting environment variable**
+- **Solution:** 
+  1. Check if the variable is set: `echo $OPENWEATHER_API_KEY` (Linux/Mac) or `echo %OPENWEATHER_API_KEY%` (Windows)
+  2. If using `.env`, ensure the file is in the project root directory
+  3. Restart your terminal or re-activate the virtual environment
+
+**Issue: Network/connection errors**
+- **Solution:**
+  1. Check your internet connection
+  2. Verify the API key is valid by testing it at OpenWeatherMap
+  3. Check if your firewall is blocking requests to `api.openweathermap.org`
+
+**Issue: Tests fail to run**
+- **Solution:**
+  1. Ensure `pytest` is installed: `pip install pytest`
+  2. Run from the project root directory
+  3. Check that test files are in the `tests/` directory
+
+**Issue: Permission denied when creating virtual environment**
+- **Solution:** 
+  - On Linux/Mac: You may need to use `python3` instead of `python`
+  - On Windows: Run your terminal as administrator if needed
+
+---
 ## FAQ
 **Q: Why only Tokyo?**  
 A: MVP scope. Later we can generalize to arbitrary city input.
@@ -217,6 +298,24 @@ A: Yes. Abstract the fetch logic in `weather.py` and add adapters.
 
 **Q: How do I change units?**  
 A: Planned `--units` flag; currently defaults to metric.
+
+**Q: What Python version is required?**  
+A: Python 3.10 or higher is recommended. Check your version with `python --version`.
+
+**Q: The CLI shows "API key not set" - what should I do?**  
+A: Ensure you've set the `OPENWEATHER_API_KEY` environment variable or created a `.env` file with your API key. See the [Environment Variables](#environment-variables) section.
+
+**Q: How do I get an OpenWeatherMap API key?**  
+A: Sign up at [OpenWeatherMap](https://openweathermap.org/api) and create a free API key. The free tier is sufficient for this tool.
+
+**Q: Tests are failing with network errors - is this normal?**  
+A: Tests should use mocked API calls and not require network access. If you see network errors, ensure tests are properly mocking external calls.
+
+**Q: Can I run this tool without installing it?**  
+A: Yes, after activating your virtual environment and installing dependencies, run: `python -m tokyoweather`
+
+**Q: Where can I report bugs or suggest features?**  
+A: Open an issue on the GitHub repository with detailed information about the problem or enhancement.
 
 ---
 ## Maintainers
