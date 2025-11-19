@@ -22,7 +22,8 @@ def main():
     # Try to fetch weather data
     api_key = os.getenv("OPENWEATHER_API_KEY")
     
-    if not api_key:
+    # Validate API key is not empty or whitespace-only
+    if not api_key or not api_key.strip():
         print("ERROR: OPENWEATHER_API_KEY environment variable not set.")
         print("Please set it to fetch weather data:")
         print("  export OPENWEATHER_API_KEY=your_api_key_here")

@@ -151,3 +151,58 @@ class TestCLIMain:
         assert "Tokyo Time: 2025-11-19 15:42:07 JST" in captured.out
         assert "ERROR: Failed to fetch weather data" in captured.err
         assert "not found" in captured.err
+
+
+class TestEnvironmentVariableHandling:
+    """Tests for environment variable handling and security."""
+    
+    @patch("tokyoweather.__main__.format_jst_time")
+    @patch.dict("os.environ", {}, clear=True)
+    def test_missing_env_var_returns_exit_code_1(self, mock_format_time, capsys):
+        """Test that missing API key returns exit code 1 (config error)."""
+        mock_format_time.return_value = "2025-11-19 15:42:07 JST"
+        
+        exit_code = main()
+        
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "ERROR: OPENWEATHER_API_KEY environment variable not set" in captured.err
+    
+    @patch("tokyoweather.__main__.format_jst_time")
+    @patch.dict("os.environ", {"OPENWEATHER_API_KEY": ""})
+    def test_empty_env_var_returns_exit_code_1(self, mock_format_time, capsys):
+        """Test that empty API key is treated as missing."""
+        mock_format_time.return_value = "2025-11-19 15:42:07 JST"
+        
+        exit_code = main()
+        
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "ERROR: OPENWEATHER_API_KEY environment variable not set" in captured.err
+    
+    @patch("tokyoweather.__main__.fetch_weather")
+    @patch("tokyoweather.__main__.format_jst_time")
+    @patch.dict("os.environ", {"OPENWEATHER_API_KEY": "   "})
+    def test_whitespace_only_env_var_returns_exit_code_1(self, mock_format_time, mock_fetch, capsys):
+        """Test that whitespace-only API key is treated as missing."""
+        mock_format_time.return_value = "2025-11-19 15:42:07 JST"
+        
+        exit_code = main()
+        
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "ERROR: OPENWEATHER_API_KEY environment variable not set" in captured.err
+    
+    @patch("tokyoweather.__main__.fetch_weather")
+    @patch("tokyoweather.__main__.format_jst_time")
+    @patch("tokyoweather.__main__.load_dotenv")
+    @patch.dict("os.environ", {"OPENWEATHER_API_KEY": "valid_key"})
+    def test_dotenv_loaded_at_startup(self, mock_load_dotenv, mock_format_time, mock_fetch, capsys):
+        """Test that load_dotenv is called to load .env file."""
+        mock_format_time.return_value = "2025-11-19 15:42:07 JST"
+        mock_fetch.return_value = SAMPLE_WEATHER_DATA
+        
+        main()
+        
+        # Verify load_dotenv was called
+        mock_load_dotenv.assert_called_once()
